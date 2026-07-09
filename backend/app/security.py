@@ -71,26 +71,52 @@ def _dumps(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
 
 
-def create_access_token(subject: str, role: Role) -> str:
+def create_access_token(subject: str, role: str | Role) -> str:
     """
     Issue a signed HS256 access token for the given subject and role.
+    Accepts either a Role enum or a plain string.
     """
     settings = get_settings()
-    header = {"alg": "HS256", "typ": "JWT"}
+
+    header = {
+        "alg": "HS256",
+        "typ": "JWT",
+    }
+
     now = datetime.now(UTC)
+
+    # Support both Role enum and string
+    role_name = role.value if isinstance(role, Role) else role
+
     payload = {
         "sub": subject,
-        "role": role.value,
+        "role": role_name,
         "iss": settings.jwt_issuer,
         "iat": int(now.timestamp()),
         "nbf": int(now.timestamp()),
-        "exp": int((now + timedelta(minutes=settings.access_token_minutes)).timestamp()),
+        "exp": int(
+            (
+                now
+                + timedelta(
+                    minutes=settings.access_token_minutes
+                )
+            ).timestamp()
+        ),
         "type": "access",
     }
-    signing_input = f"{_b64(_dumps(header))}.{_b64(_dumps(payload))}"
-    signature = hmac.new(settings.jwt_secret.encode(), signing_input.encode(), hashlib.sha256).digest()
-    return f"{signing_input}.{_b64(signature)}"
 
+    signing_input = (
+        f"{_b64(_dumps(header))}."
+        f"{_b64(_dumps(payload))}"
+    )
+
+    signature = hmac.new(
+        settings.jwt_secret.encode(),
+        signing_input.encode(),
+        hashlib.sha256,
+    ).digest()
+
+    return f"{signing_input}.{_b64(signature)}"
 
 def decode_token(token: str) -> TokenClaims:
     """
