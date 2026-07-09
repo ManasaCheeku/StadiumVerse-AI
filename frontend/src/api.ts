@@ -32,7 +32,9 @@ export type VenueInsights = {
   recommendations: string[];
 };
 
-const api = axios.create({ baseURL: "/api" });
+const api = axios.create({
+  baseURL: "https://stadium-verse-ai-flame.vercel.app",
+});
 
 export function setAuthToken(token: string | null) {
   if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
