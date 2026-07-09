@@ -2,6 +2,7 @@ import time
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from .agents import answer_agent, crowd_intelligence, emergency_response, operations_snapshot, shortest_route
@@ -67,9 +68,18 @@ def initialize_database() -> None:
 async def rate_limit(request: Request, call_next):
     key = request.client.host if request.client else "unknown"
     now = time.time()
-    _rate_hits[key] = [hit for hit in _rate_hits.get(key, []) if now - hit < 60]
+
+    _rate_hits[key] = [
+        hit for hit in _rate_hits.get(key, [])
+        if now - hit < 60
+    ]
+
     if len(_rate_hits[key]) > 120:
-        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Rate limit exceeded"},
+        )
+
     _rate_hits[key].append(now)
     return await call_next(request)
 
