@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChatMessage, Persona, Language } from "../types";
+import { askCopilot } from "../services/copilotService";
 
 interface SendMessageOptions {
   message: string;
@@ -24,7 +25,7 @@ export function useCopilot() {
     persona,
     language,
   }: SendMessageOptions) {
-    if (!message.trim()) return;
+    if (!message.trim() || loading) return;
 
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
@@ -33,23 +34,14 @@ export function useCopilot() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-
     setLoading(true);
 
     try {
-const response = await fetch("https://stadium-verse-ai-flame.vercel.app/ai/assist", {        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          message,
-          persona,
-          language,
-        }),
+      const data = await askCopilot({
+        message,
+        persona,
+        language,
       });
-
-      const data = await response.json();
 
       setMessages((prev) => [
         ...prev,
@@ -59,21 +51,24 @@ const response = await fetch("https://stadium-verse-ai-flame.vercel.app/ai/assis
           content:
             data.answer ??
             data.summary ??
-            JSON.stringify(data, null, 2),
+            "No response received.",
         },
       ]);
-    } catch {
+    } catch (error) {
+      console.error(error);
+
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: "⚠ Unable to contact StadiumVerse AI.",
+          content:
+            "⚠ Unable to contact StadiumVerse AI. Please try again later.",
         },
       ]);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   return {

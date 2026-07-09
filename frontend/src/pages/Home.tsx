@@ -1,10 +1,10 @@
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
+import MatchReminder from "../components/MatchReminder";
 import MatchContextCard from "../components/MatchContextCard";
+import StadiumDashboard from "../components/StadiumDashboard";
 import QuickActions from "../components/QuickActions";
 import Footer from "../components/Footer";
-import StadiumDashboard from "../components/StadiumDashboard";
-import MatchReminder from "../components/MatchReminder";
 
 export default function Home() {
   return (
@@ -13,11 +13,19 @@ export default function Home() {
 
       <Hero />
 
-      <section className="mx-auto max-w-7xl px-6 py-10">
+      <section className="mx-auto max-w-7xl px-6 py-8">
+        <MatchReminder />
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-8">
         <MatchContextCard />
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-10">
+      <section className="mx-auto max-w-7xl px-6 py-8">
+        <StadiumDashboard />
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-8">
         <QuickActions />
       </section>
 
