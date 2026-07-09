@@ -133,3 +133,35 @@ def test_admin_audit_logs() -> None:
 
     assert response.status_code == 200
     assert isinstance(response.json(), list)
+
+
+def test_ai_persona_detection_and_multilingual() -> None:
+    fan_token = token_for("fan@stadiumverse.ai")
+    
+    # Check that spanish headers are returned correctly
+    response = client.post(
+        "/ai/assist",
+        headers={"Authorization": f"Bearer {fan_token}"},
+        json={"persona": "fan", "message": "como llego a la puerta 5?", "language": "Spanish"}
+    )
+    assert response.status_code == 200
+    assert "Resumen (Summary)" in response.json()["answer"]
+    assert "Acción Recomendada" in response.json()["answer"]
+    assert "Razonamiento" in response.json()["answer"]
+
+
+def test_ai_incident_reporting() -> None:
+    security_token = token_for("security@stadiumverse.ai")
+    
+    # Check that incident report structure is output for security incidents
+    response = client.post(
+        "/ai/assist",
+        headers={"Authorization": f"Bearer {security_token}"},
+        json={"persona": "security", "message": "report unattended bag under seat A12", "language": "English"}
+    )
+    assert response.status_code == 200
+    assert "[Incident Report Summary]" in response.json()["answer"]
+    assert "Incident Type: Unattended Baggage" in response.json()["answer"]
+    assert "Priority: High" in response.json()["answer"]
+    assert "Escalation Required: Yes" in response.json()["answer"]
+
