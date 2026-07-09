@@ -37,8 +37,7 @@ export function useCopilot() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/ai/assist", {
-        method: "POST",
+const response = await fetch("https://stadium-verse-ai-flame.vercel.app/ai/assist", {        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
