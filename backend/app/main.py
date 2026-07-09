@@ -52,15 +52,15 @@ _rate_hits: dict[str, list[float]] = {}
 
 
 def initialize_database() -> None:
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
     try:
-        seed_database(db)
-    finally:
-        db.close()
-
-
-initialize_database()
+        Base.metadata.create_all(bind=engine)
+        db = SessionLocal()
+        try:
+            seed_database(db)
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"Database initialization failed: {e}")
 
 
 @app.middleware("http")
