@@ -4,12 +4,41 @@ interface Props {
   message: ChatMessage;
 }
 
+function parseSections(text: string) {
+  const sections: Record<string, string> = {};
+
+  const keys = [
+    "Summary",
+    "Recommended Action",
+    "Reasoning",
+    "Alternative",
+    "Accessibility",
+    "Safety",
+  ];
+
+  let current = "Summary";
+  sections[current] = "";
+
+  text.split("\n").forEach((line) => {
+    const found = keys.find((k) => line.startsWith(k));
+
+    if (found) {
+      current = found;
+      sections[current] = line.replace(found + ":", "").trim();
+    } else {
+      sections[current] = (sections[current] || "") + " " + line.trim();
+    }
+  });
+
+  return sections;
+}
+
 export default function MessageBubble({ message }: Props) {
   const isUser = message.role === "user";
 
   if (isUser) {
     return (
-      <div className="flex justify-end mb-4">
+      <div className="mb-4 flex justify-end">
         <div className="max-w-xl rounded-2xl bg-sky-600 px-5 py-3 text-white shadow-lg">
           {message.content}
         </div>
@@ -17,81 +46,80 @@ export default function MessageBubble({ message }: Props) {
     );
   }
 
+  const data = parseSections(message.content);
+
   return (
-    <div className="flex justify-start mb-6">
-      <div className="max-w-3xl w-full rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-lg">
+    <div className="mb-6 flex justify-start">
+      <div className="w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl">
 
-        <h3 className="text-lg font-bold text-sky-400 mb-4">
-          🤖 StadiumVerse AI
-        </h3>
+        <div className="mb-6 flex items-center justify-between">
 
-        <div className="grid gap-4">
+          <h3 className="text-xl font-bold text-sky-400">
+            🤖 StadiumVerse AI
+          </h3>
 
-          <section className="rounded-xl bg-slate-800 p-4">
-            <h4 className="font-semibold text-emerald-400">Summary</h4>
-            <p className="text-slate-300 mt-2">{message.content}</p>
-          </section>
+          <div className="flex gap-2">
 
-          <section className="rounded-xl bg-slate-800 p-4">
-            <h4 className="font-semibold text-blue-400">
-              Recommended Action
-            </h4>
-            <p className="text-slate-300 mt-2">
-              Follow the AI recommendation shown above.
-            </p>
-          </section>
+            <span className="rounded-full bg-green-600 px-3 py-1 text-xs">
+              AI Online
+            </span>
 
-          <section className="rounded-xl bg-slate-800 p-4">
-            <h4 className="font-semibold text-yellow-400">
-              Reasoning
-            </h4>
-            <p className="text-slate-300 mt-2">
-              Generated using available stadium operational context.
-            </p>
-          </section>
+            <span className="rounded-full bg-blue-600 px-3 py-1 text-xs">
+              Context Aware
+            </span>
 
-          <section className="rounded-xl bg-slate-800 p-4">
-            <h4 className="font-semibold text-purple-400">
-              Alternative
-            </h4>
-            <p className="text-slate-300 mt-2">
-              Another nearby option may be available.
-            </p>
-          </section>
-
-          <section className="rounded-xl bg-emerald-900/30 border border-emerald-600 p-4">
-            <h4 className="font-semibold text-emerald-400">
-              Accessibility
-            </h4>
-            <p className="text-slate-300 mt-2">
-              Accessible routes are prioritised whenever required.
-            </p>
-          </section>
-
-          <section className="rounded-xl bg-red-900/30 border border-red-600 p-4">
-            <h4 className="font-semibold text-red-400">
-              Safety
-            </h4>
-            <p className="text-slate-300 mt-2">
-              Follow official FIFA announcements and stadium staff instructions during emergencies.
-            </p>
-          </section>
-
-          <section className="rounded-xl bg-slate-800 p-4">
-            <h4 className="font-semibold text-cyan-400">
-              Confidence
-            </h4>
-
-            <div className="w-full h-3 rounded-full bg-slate-700 mt-3">
-              <div className="h-3 w-[92%] rounded-full bg-cyan-400"></div>
-            </div>
-
-            <p className="text-sm text-slate-400 mt-2">
-              92% confidence (demo estimate)
-            </p>
-          </section>
+          </div>
 
         </div>
+
+        <div className="space-y-4">
+
+          {Object.entries(data).map(([title, value]) => {
+
+            if (!value.trim()) return null;
+
+            return (
+              <div
+                key={title}
+                className="rounded-xl border border-slate-700 bg-slate-800 p-5"
+              >
+                <h4 className="mb-2 font-bold text-sky-400">
+                  {title}
+                </h4>
+
+                <p className="leading-7 text-slate-300">
+                  {value}
+                </p>
+
+              </div>
+            );
+
+          })}
+
+        </div>
+
+        <div className="mt-6">
+
+          <div className="mb-2 flex justify-between text-sm">
+
+            <span className="text-slate-400">
+              AI Confidence
+            </span>
+
+            <span className="text-cyan-400">
+              92%
+            </span>
+
+          </div>
+
+          <div className="h-3 rounded-full bg-slate-700">
+
+            <div className="h-3 w-[92%] rounded-full bg-cyan-400"></div>
+
+          </div>
+
+        </div>
+
       </div>
     </div>
   );

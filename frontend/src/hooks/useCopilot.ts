@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { ChatMessage } from "../types";
+import { ChatMessage, Persona, Language } from "../types";
+
+interface SendMessageOptions {
+  message: string;
+  persona: Persona;
+  language: Language;
+}
 
 export function useCopilot() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -13,7 +19,11 @@ export function useCopilot() {
 
   const [loading, setLoading] = useState(false);
 
-  async function sendMessage(message: string) {
+  async function sendMessage({
+    message,
+    persona,
+    language,
+  }: SendMessageOptions) {
     if (!message.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -32,8 +42,11 @@ export function useCopilot() {
         headers: {
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify({
           message,
+          persona,
+          language,
         }),
       });
 
@@ -44,7 +57,10 @@ export function useCopilot() {
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: data.answer ?? JSON.stringify(data),
+          content:
+            data.answer ??
+            data.summary ??
+            JSON.stringify(data, null, 2),
         },
       ]);
     } catch {

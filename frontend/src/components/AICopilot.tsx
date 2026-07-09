@@ -16,8 +16,11 @@ export default function AICopilot() {
   async function handleSend() {
     if (!input.trim()) return;
 
-    await sendMessage(input);
-
+    await sendMessage({
+      message: input,
+      persona,
+      language,
+    });
     setInput("");
   }
 
