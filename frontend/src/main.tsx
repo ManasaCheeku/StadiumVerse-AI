@@ -90,7 +90,7 @@ interface ChatMessage {
 
 function Shell() {
   const [user, setUser] = React.useState<User | null>(null);
-  
+
   // Copilot Drawer States
   const [isCopilotOpen, setIsCopilotOpen] = React.useState(false);
   const [copilotTrigger, setCopilotTrigger] = React.useState<{ message: string; persona: string; language?: string } | null>(null);
@@ -139,7 +139,7 @@ function Shell() {
         <NavLink to="/admin"><BadgeCheck size={18} />Admin</NavLink>
       </nav>
       <section className="statusLine">{user ? `${user.full_name} signed in as ${user.role}` : "Choose a demo role to unlock secured workflows."}</section>
-      
+
       <Routes>
         <Route path="/" element={<Fan user={user} onAskCopilot={openCopilotWithMessage} />} />
         <Route path="/security" element={<SecurityDesk />} />
@@ -155,10 +155,10 @@ function Shell() {
       </button>
 
       {/* Premium AI Copilot Drawer */}
-      <AICopilot 
-        isOpen={isCopilotOpen} 
-        onClose={() => setIsCopilotOpen(false)} 
-        trigger={copilotTrigger} 
+      <AICopilot
+        isOpen={isCopilotOpen}
+        onClose={() => setIsCopilotOpen(false)}
+        trigger={copilotTrigger}
         currentUser={user}
         clearTrigger={() => setCopilotTrigger(null)}
       />
@@ -182,7 +182,7 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
   const [inputValue, setInputValue] = React.useState("");
   const [selectedPersona, setSelectedPersona] = React.useState("fan");
   const [selectedLanguage, setSelectedLanguage] = React.useState("English");
-  
+
   // Animation / Status states
   const [isThinking, setIsThinking] = React.useState(false);
   const [isListening, setIsListening] = React.useState(false);
@@ -208,7 +208,7 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
     if (trigger) {
       setSelectedPersona(trigger.persona);
       if (trigger.language) setSelectedLanguage(trigger.language);
-      
+
       // Auto-submit the triggered message
       sendMessage(trigger.message, trigger.persona, trigger.language || "English");
       clearTrigger();
@@ -230,11 +230,11 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
       accessibility: "",
       safety: ""
     };
-    
+
     // Split by markdown headers
     const lines = text.split("\n");
     let currentKey = "summary";
-    
+
     for (const line of lines) {
       const trimmed = line.trim();
       if (trimmed.startsWith("###")) {
@@ -256,19 +256,19 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
         sections[currentKey] = (sections[currentKey] || "") + line + "\n";
       }
     }
-    
+
     // If no sections parsed, use whole text as summary
     if (!sections.summary && !sections.action && !sections.reasoning) {
       sections.summary = text;
     }
-    
+
     return sections;
   };
 
   const detectBadges = (sections: Record<string, string>, rawText: string) => {
     const hasAccessibility = !!sections.accessibility && !sections.accessibility.toLowerCase().includes("not applicable");
     const hasEmergency = !!sections.safety && !sections.safety.toLowerCase().includes("not applicable");
-    
+
     const sustainKeywords = ["water refill", "reusable", "public transport", "metro", "bus", "train", "sustainability", "eco", "waste segregation", "bottle", "paperless"];
     const hasSustainability = sustainKeywords.some(kw => rawText.toLowerCase().includes(kw));
 
@@ -312,7 +312,7 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
         agentName: response.agent,
         badges
       };
-      
+
       setMessages(prev => [...prev, aiMsg]);
     } catch (e) {
       const errorMsg: ChatMessage = {
@@ -398,7 +398,13 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
               <span className="copilot-status">Operations Mode Active</span>
             </div>
           </div>
-          <button className="copilot-close" onClick={onClose}>
+          <button
+            type="button"
+            className="copilot-close"
+            onClick={onClose}
+            aria-label="Close AI Copilot"
+            title="Close AI Copilot"
+          >
             <X size={20} />
           </button>
         </div>
@@ -407,8 +413,8 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
         <div className="copilot-selectors">
           <div className="copilot-field">
             <label>Persona</label>
-            <select 
-              value={selectedPersona} 
+            <select
+              value={selectedPersona}
               onChange={(e) => setSelectedPersona(e.target.value)}
               className="copilot-select"
             >
@@ -421,8 +427,8 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
           </div>
           <div className="copilot-field">
             <label>Language</label>
-            <select 
-              value={selectedLanguage} 
+            <select
+              value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
               className="copilot-select"
             >
@@ -450,8 +456,8 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
             <div className="copilot-suggestions">
               <p style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", color: "#53645e", margin: "10px 0 5px" }}>Suggested Prompts</p>
               {getSuggestions().map((sug, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="copilot-suggestion-card"
                   onClick={() => sendMessage(sug.msg, selectedPersona, selectedLanguage)}
                 >
@@ -581,7 +587,7 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
             );
           })
         )}
-        
+
         {/* Thinking Indicator */}
         {isThinking && (
           <div className="copilot-thinking">
@@ -611,16 +617,16 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
       {/* Input Form */}
       <div className="copilot-input-area">
         <div className="copilot-input-row">
-          <button 
-            className="copilot-action-btn" 
+          <button
+            className="copilot-action-btn"
             title="Upload digital ticket"
             onClick={triggerTicketUpload}
           >
             <Paperclip size={18} />
           </button>
-          
-          <input 
-            type="text" 
+
+          <input
+            type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
@@ -628,8 +634,8 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
             className="copilot-input"
             disabled={isThinking}
           />
-          
-          <button 
+
+          <button
             className={`copilot-action-btn ${isListening ? "animate-pulse-mic" : ""}`}
             title="Voice assistance"
             onClick={triggerVoiceInput}
@@ -638,8 +644,8 @@ function AICopilot({ isOpen, onClose, trigger, currentUser, clearTrigger }: AICo
           </button>
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button 
-            className="copilot-send-btn" 
+          <button
+            className="copilot-send-btn"
             onClick={handleSend}
             disabled={!inputValue.trim() || isThinking}
           >
@@ -692,7 +698,7 @@ function MatchContextCard({ ticket }: MatchContextCardProps) {
           <span className="eyebrow" style={{ color: "#d7eee7", marginBottom: "4px", display: "block" }}>Match Day Live Context</span>
           <h3 className="match-teams">Harbor FC vs Summit City</h3>
         </div>
-        
+
         <div className="match-meta-grid">
           <div className="match-meta-item">
             <MapPin size={16} />
@@ -748,31 +754,31 @@ interface FanProps {
 }
 
 const QUICK_ACTIONS = [
-  { id: "gate",      icon: "MapPin",       label: "Find My Gate",         hint: "Navigate to your gate",      prompt: "How do I find my gate? I have a ticket for Gate 5 at Harbor Field.",                           persona: "fan" },
-  { id: "access",   icon: "Users",        label: "Accessible Route",     hint: "Wheelchair & mobility routes", prompt: "I need a wheelchair-accessible route from the main entrance to Section B20.",                   persona: "fan" },
-  { id: "washroom", icon: "Droplets",      label: "Nearest Washroom",     hint: "Find restrooms quickly",      prompt: "Where is the nearest restroom from Concourse B?",                                            persona: "fan" },
-  { id: "food",     icon: "Utensils",      label: "Find Food",            hint: "Fastest concessions queue",   prompt: "Which food court has the shortest queue right now?",                                          persona: "fan" },
-  { id: "parking",  icon: "Car",          label: "Parking",              hint: "Parking slots & directions",  prompt: "Which parking zone has the most available spaces and how do I get there?",                      persona: "fan" },
-  { id: "transit",  icon: "Bus",          label: "Transport",            hint: "Bus, rail & shuttle status",  prompt: "What public transport options are available from the stadium after the match?",                 persona: "fan" },
-  { id: "lost",     icon: "Search",        label: "Lost & Found",         hint: "Report or find lost items",   prompt: "I lost my bag near Section A12. How do I report it and where is the Lost and Found desk?",       persona: "fan" },
-  { id: "emergency",icon: "AlertTriangle", label: "Emergency",            hint: "Medical & safety support",    prompt: "medical emergency near gate 5",                                                              persona: "fan" },
-  { id: "translate",icon: "Languages",    label: "Translate Announcement",hint: "Multilingual stadium help",   prompt: "Please translate the latest stadium announcement into Hindi.",                               persona: "fan" },
-  { id: "rules",    icon: "BookOpen",      label: "Stadium Rules",        hint: "Allowed & prohibited items",  prompt: "What are the stadium rules? What items are prohibited at Harbor Field for the FIFA World Cup?",   persona: "fan" },
+  { id: "gate", icon: "MapPin", label: "Find My Gate", hint: "Navigate to your gate", prompt: "How do I find my gate? I have a ticket for Gate 5 at Harbor Field.", persona: "fan" },
+  { id: "access", icon: "Users", label: "Accessible Route", hint: "Wheelchair & mobility routes", prompt: "I need a wheelchair-accessible route from the main entrance to Section B20.", persona: "fan" },
+  { id: "washroom", icon: "Droplets", label: "Nearest Washroom", hint: "Find restrooms quickly", prompt: "Where is the nearest restroom from Concourse B?", persona: "fan" },
+  { id: "food", icon: "Utensils", label: "Find Food", hint: "Fastest concessions queue", prompt: "Which food court has the shortest queue right now?", persona: "fan" },
+  { id: "parking", icon: "Car", label: "Parking", hint: "Parking slots & directions", prompt: "Which parking zone has the most available spaces and how do I get there?", persona: "fan" },
+  { id: "transit", icon: "Bus", label: "Transport", hint: "Bus, rail & shuttle status", prompt: "What public transport options are available from the stadium after the match?", persona: "fan" },
+  { id: "lost", icon: "Search", label: "Lost & Found", hint: "Report or find lost items", prompt: "I lost my bag near Section A12. How do I report it and where is the Lost and Found desk?", persona: "fan" },
+  { id: "emergency", icon: "AlertTriangle", label: "Emergency", hint: "Medical & safety support", prompt: "medical emergency near gate 5", persona: "fan" },
+  { id: "translate", icon: "Languages", label: "Translate Announcement", hint: "Multilingual stadium help", prompt: "Please translate the latest stadium announcement into Hindi.", persona: "fan" },
+  { id: "rules", icon: "BookOpen", label: "Stadium Rules", hint: "Allowed & prohibited items", prompt: "What are the stadium rules? What items are prohibited at Harbor Field for the FIFA World Cup?", persona: "fan" },
 ];
 
 const QA_ICON_MAP: Record<string, React.ElementType> = {
   MapPin, Users, Car, Bus, Languages, AlertTriangle,
   Droplets: ({ size }: { size: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg>
   ),
   Utensils: ({ size }: { size: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></svg>
   ),
   Search: ({ size }: { size: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
   ),
   BookOpen: ({ size }: { size: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
   ),
 };
 
