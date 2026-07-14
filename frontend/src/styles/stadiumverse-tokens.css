@@ -1,0 +1,50 @@
+/* ============================================================
+   StadiumVerse — shared design tokens
+   Import this file at the top of every dashboard's CSS
+   (Fan, Security, Volunteer) so colors and type stay identical
+   across the whole app. Don't redefine these values locally.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Surfaces */
+  --sv-void: #0a0f1a;
+  --sv-void-2: #0d1424;
+  --sv-border: rgba(148, 178, 224, 0.14);
+  --sv-border-strong: rgba(148, 178, 224, 0.28);
+  --sv-surface: rgba(22, 35, 60, 0.75);
+  --sv-surface-2: rgba(15, 22, 38, 0.6);
+
+  /* Brand accent — reserved for interactive/informational elements only
+     (buttons, links, focus rings, live indicators). Never reused as a
+     severity or status color — that's what caused the clash. */
+  --sv-brand: #22d3ee;
+  --sv-brand-dim: rgba(34, 211, 238, 0.14);
+
+  /* Semantic status — used ONLY for meaning (success/warning/critical),
+     consistently across badges, dots, strips, and gauges. */
+  --sv-success: #34d399;
+  --sv-success-dim: rgba(52, 211, 153, 0.14);
+  --sv-warning: #f2a90c;
+  --sv-warning-dim: rgba(242, 169, 12, 0.14);
+  --sv-caution: #d9b25c;      /* muted gold — "Medium" tier, distinct from warning */
+  --sv-caution-dim: rgba(217, 178, 92, 0.14);
+  --sv-critical: #f04545;
+  --sv-critical-dim: rgba(240, 69, 69, 0.14);
+
+  /* Neutral — "Low" tier and anything non-urgent lives here now,
+     instead of borrowing the brand cyan. */
+  --sv-neutral: #93a1bd;
+  --sv-neutral-dim: rgba(147, 161, 189, 0.12);
+
+  /* Text */
+  --sv-text: #e7edf9;
+  --sv-muted: #8592ad;
+  --sv-faint: #57647f;
+
+  /* Type */
+  --sv-font-display: 'Rajdhani', sans-serif;
+  --sv-font-body: 'Inter', system-ui, sans-serif;
+  --sv-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}

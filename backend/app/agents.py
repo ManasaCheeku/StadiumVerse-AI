@@ -1,5 +1,10 @@
-import re
-from .schemas import AgentRequest, AgentResponse, NavigationRequest, RouteResponse
+from .schemas import (
+    AgentRequest,
+    AgentResponse,
+    NavigationRequest,
+    RouteResponse,
+)
+from .translations import HEADERS_TR, RESPONSES_TR
 
 STADIUM_GRAPH = {
     "Gate 1": ["Concourse A", "Parking East"],
@@ -18,271 +23,11 @@ STADIUM_GRAPH = {
     "Emergency Exit 3": ["Concourse B", "Section B20"],
 }
 
-# Translation Dictionary for Structuring Headers
-HEADERS_TR = {
-    "english": {
-        "summary": "### Summary",
-        "action": "### Recommended Action",
-        "reasoning": "### Reasoning",
-        "alternative": "### Alternative Option (if available)",
-        "accessibility": "### Accessibility Guidance (if applicable)",
-        "safety": "### Safety Advice (if applicable)",
-    },
-    "hindi": {
-        "summary": "### सारांश (Summary)",
-        "action": "### अनुशंसित कार्रवाई (Recommended Action)",
-        "reasoning": "### तर्क (Reasoning)",
-        "alternative": "### वैकल्पिक विकल्प (Alternative Option)",
-        "accessibility": "### अभिगम्यता मार्गदर्शन (Accessibility Guidance)",
-        "safety": "### सुरक्षा सलाह (Safety Advice)",
-    },
-    "kannada": {
-        "summary": "### ಸಾರಾಂಶ (Summary)",
-        "action": "### ಶಿಫಾರಸು ಮಾಡಿದ ಕ್ರಮ (Recommended Action)",
-        "reasoning": "### ಕಾರಣ (Reasoning)",
-        "alternative": "### ಪರ್ಯಾಯ ಆಯ್ಕೆ (Alternative Option)",
-        "accessibility": "### ಪ್ರವೇಶಾವಕಾಶ ಮಾರ್ಗದರ್ಶನ (Accessibility Guidance)",
-        "safety": "### ಸುರಕ್ಷತಾ ಸಲಹೆ (Safety Advice)",
-    },
-    "spanish": {
-        "summary": "### Resumen (Summary)",
-        "action": "### Acción Recomendada (Recommended Action)",
-        "reasoning": "### Razonamiento (Reasoning)",
-        "alternative": "### Opción Alternativa (si está disponible)",
-        "accessibility": "### Guía de Accesibilidad (si corresponde)",
-        "safety": "### Consejo de Seguridad (si corresponde)",
-    },
-    "french": {
-        "summary": "### Résumé (Summary)",
-        "action": "### Action Recommandée (Recommended Action)",
-        "reasoning": "### Raisonnement (Reasoning)",
-        "alternative": "### Option Alternative (si disponible)",
-        "accessibility": "### Guidance d'Accessibilité (si applicable)",
-        "safety": "### Conseil de Securité (si applicable)",
-    }
-}
-
-# Multilingual Response Content Mapping
-RESPONSES_TR = {
-    "english": {
-        "emergency_summary": "A critical emergency alert has been activated near the specified zone.",
-        "emergency_action": "- Follow exit pathways immediately.\n- Keep communication channels open for emergency broadcasts.\n- Do not block pathways or gates.",
-        "emergency_reasoning": "Safety is the priority. Emergency response is routed through Gate 5 to the Medical Center. Concourse B must remain clear.",
-        "emergency_alt": "If primary exits are blocked, use Emergency Exit 1 or exit via Concourse A.",
-        "emergency_access": "Prioritize accessible routes using elevator banks and low-gradient ramps. Assist wheelchair users first.",
-        "emergency_safety": "Evacuate calmly. Follow official security and steward announcements.",
-        
-        "incident_summary": "Incident report successfully logged and routed to the Command Center.",
-        "incident_action": "- Stay in a safe area nearby to assist staff.\n- Keep visual contact on the issue if safe to do so.",
-        "incident_reasoning": "All safety reports trigger audit logs to ensure immediate response from ground operations.",
-        "incident_alt": "Report directly to the Volunteer Info Desk on Concourse A.",
-        "incident_access": "Ramp access and priority support will be dispatched if mobility issues are reported.",
-        "incident_safety": "Do not touch unattended packages. Report suspicious items immediately.",
-        
-        "navigation_summary": "Stadium route calculated. Gate 3 is congested; Gate 5 is recommended.",
-        "navigation_action": "- Access the stadium via Gate 5 (current wait time under 8 minutes).\n- Avoid Gate 3 which has a 24-minute wait time.",
-        "navigation_reasoning": "Gate 3 occupancy is currently at 91%. Shifting to Gate 5 (57% occupancy) saves approximately 16 minutes.",
-        "navigation_alt": "Use Gate 1 which has a 68% occupancy and 11-minute wait.",
-        "navigation_access": "Priority elevators are located at Concourse B for wheelchair, stroller, and senior assistance.",
-        "navigation_safety": "Stay within designated fan pathways and avoid blocking security lanes.",
-        
-        "food_summary": "Food Court North is recommended for the fastest concessions service.",
-        "food_action": "- Head to Food Court North (estimated wait is 7 minutes).\n- Browse healthy and vegetarian menu options.",
-        "food_reasoning": "Food Court South wait time has reached 18 minutes due to halftime rush.",
-        "food_alt": "Family Zone concessions at Section A12 has a 5-minute wait.",
-        "food_access": "Lowered service counter is open at Section A12 for wheelchair users.",
-        "food_safety": "Dispose of trash in color-coded sorting bins. Carry reusable water bottles to refill stations.",
-        
-        "volunteer_summary": "SOP checklist retrieved for Volunteer crowd support duty.",
-        "volunteer_action": "- Check-in with your Zone Lead immediately.\n- Assist with redirecting arrivals from Gate 3 to Gate 5.\n- Keep your radio channel open.",
-        "volunteer_reasoning": "Crowd thresholds are monitored to maintain safety levels at main arrival points.",
-        "volunteer_alt": "Report to the Medical Center standby team if reassigned.",
-        "volunteer_access": "Direct all accessibility inquiries to the priority elevator banks at Concourse B.",
-        "volunteer_safety": "Wear high-visibility gear. Clear emergency exit pathways immediately.",
-        
-        "default_summary": "StadiumVerse AI Assistant is ready to help you.",
-        "default_action": "- Ask for navigation directions, ticketing scans, concessions, or safety SOPs.\n- Use the dropdown to configure your role and language.",
-        "default_reasoning": "StadiumVerse AI is a generative helper supporting FIFA World Cup 2026 match operations.",
-        "default_alt": "Visit the Physical Information Desk at Concourse A.",
-        "default_access": "Specify if you need wheelchair routes or elevator assistance.",
-        "default_safety": "Report any safety incidents or unattended items to security immediately."
-    },
-    "hindi": {
-        "emergency_summary": "निर्दिष्ट क्षेत्र के पास एक आपातकालीन चेतावनी सक्रिय की गई है।",
-        "emergency_action": "- तुरंत निकास मार्गों का पालन करें।\n- आपातकालीन प्रसारण के लिए संचार चैनल खुले रखें।\n- रास्तों या फाटकों को अवरुद्ध न करें।",
-        "emergency_reasoning": "सुरक्षा सर्वोच्च प्राथमिकता है। आपातकालीन प्रतिक्रिया को गेट 5 से मेडिकल सेंटर की ओर निर्देशित किया गया है। कॉनकोर्स बी खाली रहना चाहिए।",
-        "emergency_alt": "यदि प्राथमिक मार्ग अवरुद्ध हैं, तो आपातकालीन निकास 1 का उपयोग करें या कॉनकोर्स ए के माध्यम से बाहर निकलें।",
-        "emergency_access": "लिफ्ट और कम ढलान वाले रैंप का उपयोग करके सुलभ मार्गों को प्राथमिकता दें। व्हीलचेयर उपयोगकर्ताओं की पहले सहायता करें।",
-        "emergency_safety": "शांत होकर बाहर निकलें। सुरक्षा अधिकारियों के निर्देशों का पालन करें।",
-        
-        "incident_summary": "घटना की रिपोर्ट सफलतापूर्वक दर्ज की गई है और कमांड सेंटर भेज दी गई है।",
-        "incident_action": "- कर्मचारियों की सहायता के लिए सुरक्षित क्षेत्र में रहें।\n- सुरक्षित होने पर समस्या पर नज़र रखें।",
-        "incident_reasoning": "त्वरित जमीनी कार्रवाई सुनिश्चित करने के लिए सभी सुरक्षा रिपोर्टों का ऑडिट लॉग बनाया जाता है।",
-        "incident_alt": "कॉनकोर्स ए पर स्वयंसेवक सूचना डेस्क पर सीधे रिपोर्ट करें।",
-        "incident_access": "गतिशीलता समस्याओं की स्थिति में रैंप सहायता और प्राथमिकता सहायता भेजी जाएगी।",
-        "incident_safety": "लावारिस बैग को न छुएं। संदिग्ध वस्तुओं की तुरंत सूचना दें।",
-        
-        "navigation_summary": "स्टेडियम मार्ग की गणना की गई। गेट 3 व्यस्त है; गेट 5 की सिफारिश की जाती है।",
-        "navigation_action": "- गेट 5 के माध्यम से स्टेडियम में प्रवेश करें (प्रतीक्षा समय 8 मिनट से कम है)।\n- गेट 3 से बचें जहां 24 मिनट का प्रतीक्षा समय है।",
-        "navigation_reasoning": "गेट 3 पर भीड़ 91% है। गेट 5 (57% भीड़) पर जाने से लगभग 16 मिनट की बचत होगी।",
-        "navigation_alt": "गेट 1 का उपयोग करें जहां 68% भीड़ और 11 मिनट की प्रतीक्षा है।",
-        "navigation_access": "व्हीलचेयर और बुजुर्गों की सहायता के लिए लिफ्ट कॉनकोर्स बी पर स्थित हैं।",
-        "navigation_safety": "निर्दिष्ट मार्ग में रहें और सुरक्षा लेन को अवरुद्ध करने से बचें।",
-        
-        "food_summary": "सबसे तेज़ सेवा के लिए फ़ूड कोर्ट नॉर्थ की सिफारिश की जाती है।",
-        "food_action": "- फ़ूड कोर्ट नॉर्थ की ओर जाएं (अनुमानित प्रतीक्षा समय 7 मिनट है)।\n- शाकाहारी और स्वस्थ भोजन विकल्पों का आनंद लें।",
-        "food_reasoning": "फ़ूड कोर्ट साउथ में प्रतीक्षा समय बढ़कर 18 मिनट हो गया है।",
-        "food_alt": "सेक्शन ए12 पर फैमिली ज़ोन फ़ूड स्टॉल में 5 मिनट की प्रतीक्षा है।",
-        "food_access": "व्हीलचेयर उपयोगकर्ताओं के लिए सेक्शन ए12 पर कम ऊंचाई वाला सर्विस काउंटर उपलब्ध है।",
-        "food_safety": "कचरा केवल रंगीन डिब्बों में डालें। मुफ्त पानी भरने के स्टेशनों का उपयोग करें और अपनी बोतल लाएं।",
-        
-        "volunteer_summary": "स्वयंसेवक भीड़ सहायता कार्य के लिए एसओपी चेकलिस्ट प्राप्त की गई।",
-        "volunteer_action": "- तुरंत अपने ज़ोन लीड को रिपोर्ट करें।\n- भीड़ को गेट 3 से गेट 5 की ओर मोड़ने में सहायता करें।\n- अपना रेडियो चालू रखें।",
-        "volunteer_reasoning": "सुरक्षा बनाए रखने के लिए मुख्य प्रवेश द्वारों पर भीड़ की निगरानी की जा रही है।",
-        "volunteer_alt": "यदि नियुक्त किया जाए, तो मेडिकल सेंटर टीम को रिपोर्ट करें।",
-        "volunteer_access": "सभी दिव्यांगों को कॉनकोर्स बी पर स्थित लिफ्ट की ओर निर्देशित करें।",
-        "volunteer_safety": "चमकदार जैकेट पहनें। आपातकालीन निकास मार्गों को खाली रखें।",
-        
-        "default_summary": "स्टेडियमवर्स एआई सहायक आपकी सहायता के लिए तैयार है।",
-        "default_action": "- नेविगेशन, टिकट, भोजन, या सुरक्षा एसओपी के बारे में पूछें।\n- अपनी भूमिका और भाषा बदलने के लिए ड्रॉपडाउन का उपयोग करें।",
-        "default_reasoning": "स्टेडियमवर्स एआई फीफा विश्व कप 2026 के लिए एक स्मार्ट सहायक है।",
-        "default_alt": "कॉनकोर्स ए पर स्थित सूचना डेस्क पर जाएं।",
-        "default_access": "यदि आपको व्हीलचेयर या लिफ्ट की आवश्यकता है, तो कृपया निर्दिष्ट करें।",
-        "default_safety": "किसी भी संदिग्ध वस्तु या घटना की सूचना तुरंत सुरक्षा टीम को दें।"
-    },
-    "kannada": {
-        "emergency_summary": "ನಿಗದಿತ ವಲಯದ ಬಳಿ ತುರ್ತು ಎಚ್ಚರಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.",
-        "emergency_action": "- ತಕ್ಷಣವೇ ನಿರ್ಗಮನ ಮಾರ್ಗಗಳನ್ನು ಅನುಸರಿಸಿ.\n- ತುರ್ತು ಪ್ರಸಾರಕ್ಕಾಗಿ ರೇಡಿಯೋ ಸಂಪರ್ಕ ಚಾನಲ್ ತೆರೆದಿಡಿ.\n- ದಾರಿಗಳನ್ನು ತಡೆಯಬೇಡಿ.",
-        "emergency_reasoning": "ಸುರಕ್ಷತೆಯೇ ನಮ್ಮ ಮೊದಲ ಆದ್ಯತೆ. ತುರ್ತು ಸ್ಪಂದನೆಯನ್ನು ಗೇಟ್ 5 ರ ಮೂಲಕ ವೈದ್ಯಕೀಯ ಕೇಂದ್ರಕ್ಕೆ ಕಳುಹಿಸಲಾಗುತ್ತದೆ. ಕಾನ್ಕೋರ್ಸ್ ಬಿ ಖಾಲಿ ಇರಬೇಕು.",
-        "emergency_alt": "ಮುಖ್ಯ ದಾರಿಗಳು ಬ್ಲಾಕ್ ಆಗಿದ್ದರೆ, ತುರ್ತು ನಿರ್ಗಮನ 1 ಅಥವಾ ಕಾನ್ಕೋರ್ಸ್ ಎ ಮೂಲಕ ಹೊರಹೋಗಿ.",
-        "emergency_access": "ಲಿಫ್ಟ್ ಮತ್ತು ಇಳಿಜಾರುಗಳನ್ನು ಬಳಸಿಕೊಂಡು ಪ್ರವೇಶಿಸಬಹುದಾದ ಮಾರ್ಗಗಳಿಗೆ ಆದ್ಯತೆ ನೀಡಿ. ಗಾಲಿಕುರ್ಚಿ ಬಳಸುವವರಿಗೆ ಮೊದಲು ಸಹಾಯ ಮಾಡಿ.",
-        "emergency_safety": "ಶಾಂತವಾಗಿ ಹೊರಹೋಗಿ. ಭದ್ರತಾ ಸಿಬ್ಬಂದಿಯ ಸೂಚನೆಗಳನ್ನು ಪಾಲಿಸಿ.",
-        
-        "incident_summary": "ಘಟನೆಯ ವರದಿಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ದಾಖಲಿಸಲಾಗಿದೆ ಮತ್ತು ಕಮಾಂಡ್ ಸೆಂಟರ್‌ಗೆ ರವಾನಿಸಲಾಗಿದೆ.",
-        "incident_action": "- ಸಿಬ್ಬಂದಿಗೆ ಸಹಾಯ ಮಾಡಲು ಹತ್ತಿರದ ಸುರಕ್ಷಿತ ಪ್ರದೇಶದಲ್ಲಿರಿ.\n- ಸುರಕ್ಷಿತವಾಗಿದ್ದರೆ ಘಟನೆಯನ್ನು ಗಮನಿಸಿ.",
-        "incident_reasoning": "ತಕ್ಷಣದ ಕ್ರಮಕ್ಕಾಗಿ ಎಲ್ಲಾ ಭದ್ರತಾ ವರದಿಗಳನ್ನು ದಾಖಲಿಸಲಾಗುತ್ತದೆ.",
-        "incident_alt": "ಕಾನ್ಕೋರ್ಸ್ ಎ ನಲ್ಲಿರುವ ಸ್ವಯಂಸೇವಕ ಮಾಹಿತಿ ಡೆಸ್ಕ್‌ಗೆ ನೇರವಾಗಿ ವರದಿ ಮಾಡಿ.",
-        "incident_access": "ನಡೆಯಲು ತೊಂದರೆಯಿರುವವರಿಗೆ ಇಳಿಜಾರು ಮತ್ತು ಆದ್ಯತೆಯ ನೆರವು ನೀಡಲಾಗುವುದು.",
-        "incident_safety": "ಯಾವುದೇ ಅಪರಿಚಿತ ಬ್ಯಾಗ್‌ಗಳನ್ನು ಮುಟ್ಟಬೇಡಿ. ಭದ್ರತಾ ಸಿಬ್ಬಂದಿಗೆ ತಕ್ಷಣ ತಿಳಿಸಿ.",
-        
-        "navigation_summary": "ಕ್ರೀಡಾಂಗಣದ ಮಾರ್ಗವನ್ನು ಲೆಕ್ಕಹಾಕಲಾಗಿದೆ. ಗೇಟ್ 3 ದಟ್ಟಣೆಯಿಂದ ಕೂಡಿದೆ; ಗೇಟ್ 5 ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ.",
-        "navigation_action": "- ಗೇಟ್ 5 ರ ಮೂಲಕ ಪ್ರವೇಶಿಸಿ (ಕಾಯುವ ಸಮಯ 8 ನಿಮಿಷಕ್ಕಿಂತ ಕಡಿಮೆ ಇದೆ).\n- ಗೇಟ್ 3 ಅನ್ನು ತಪ್ಪಿಸಿ (ಕಾಯುವ ಸಮಯ 24 ನಿಮಿಷಗಳಷ್ಟಿದೆ).",
-        "navigation_reasoning": "ಗೇಟ್ 3 ರಲ್ಲಿ ದಟ್ಟಣೆ ಶೇ. 91 ರಷ್ಟಿದೆ. ಗೇಟ್ 5 ಕ್ಕೆ (ಶೇ. 57 ದಟ್ಟಣೆ) ಬದಲಾಯಿಸುವುದರಿಂದ 16 ನಿಮಿಷ ಉಳಿತಾಯವಾಗುತ್ತದೆ.",
-        "navigation_alt": "ಗೇಟ್ 1 ಬಳಸಿ, ಅಲ್ಲಿ ಶೇ. 68 ದಟ್ಟಣೆ ಮತ್ತು 11 ನಿಮಿಷ ಕಾಯುವ ಸಮಯವಿದೆ.",
-        "navigation_access": "ಗಾಲಿಕುರ್ಚಿ ಮತ್ತು ಹಿರಿಯ ನಾಗರಿಕರಿಗೆ ಸಹಾಯ ಮಾಡಲು ಕಾನ್ಕೋರ್ಸ್ ಬಿ ನಲ್ಲಿ ಲಿಫ್ಟ್‌ಗಳಿವೆ.",
-        "navigation_safety": "ನಿಗದಿಪಡಿಸಿದ ದಾರಿಯಲ್ಲಿ ಸಾಗಿ ಮತ್ತು ಭದ್ರತಾ ಹಾದಿಯನ್ನು ನಿರ್ಬಂಧಿಸಬೇಡಿ.",
-        
-        "food_summary": "ಅತಿ ವೇಗದ ಸೇವೆಗಾಗಿ ಫುಡ್ ಕೋರ್ಟ್ ನಾರ್ತ್ ಅನ್ನು ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ.",
-        "food_action": "- ಫುಡ್ ಕೋರ್ಟ್ ನಾರ್ತ್ ಕಡೆಗೆ ಸಾಗಿ (ಅಂದಾಜು ಕಾಯುವ ಸಮಯ 7 ನಿಮಿಷ).\n- ಸಸ್ಯಾಹಾರಿ ಮತ್ತು ಆಹಾರದ ಆಯ್ಕೆಗಳನ್ನು ನೋಡಿ.",
-        "food_reasoning": "ಹಾಫ್-ಟೈಮ್ ದಟ್ಟಣೆಯಿಂದಾಗಿ ಫುಡ್ ಕೋರ್ಟ್ ಸೌತ್‌ನಲ್ಲಿ ಕಾಯುವ ಸಮಯ 18 ನಿಮಿಷ ತಲುಪಿದೆ.",
-        "food_alt": "ಸೆಕ್ಷನ್ ಎ12 ನಲ್ಲಿರುವ ಫ್ಯಾಮಿಲಿ ಝೋನ್‌ನಲ್ಲಿ ಕಾಯುವ ಸಮಯ 5 ನಿಮಿಷ ಮಾತ್ರ.",
-        "food_access": "ಗಾಲಿಕುರ್ಚಿ ಬಳಸುವವರಿಗಾಗಿ ಸೆಕ್ಷನ್ ಎ12 ನಲ್ಲಿ ಕಡಿಮೆ ಎತ್ತರದ ಕೌಂಟರ್ ಲಭ್ಯವಿದೆ.",
-        "food_safety": "ತ್ಯಾಜ್ಯವನ್ನು ನಿಗದಿತ ಡಸ್ಟ್‌ಬಿನ್‌ಗಳಲ್ಲೇ ಹಾಕಿ. ಕ್ರೀಡಾಂಗಣದ ಉಚಿತ ನೀರು ತುಂಬುವ ಕೇಂದ್ರಗಳನ್ನು ಬಳಸಿ.",
-        
-        "volunteer_summary": "ಸ್ವಯಂಸೇವಕ ದಟ್ಟಣೆ ನಿಯಂತ್ರಣ ಕಾರ್ಯಕ್ಕಾಗಿ ಎಸ್‌ಒಪಿ ಪರಿಶೀಲನಾ ಪಟ್ಟಿಯನ್ನು ಪಡೆಯಲಾಗಿದೆ.",
-        "volunteer_action": "- ತಕ್ಷಣವೇ ನಿಮ್ಮ ವಲಯದ ಮುಖ್ಯಸ್ಥರಿಗೆ ವರದಿ ಮಾಡಿ.\n- ಗೇಟ್ 3 ರಿಂದ ಗೇಟ್ 5 ಕ್ಕೆ ಜನರನ್ನು ಮರುನಿರ್ದೇಶಿಸಲು ಸಹಾಯ ಮಾಡಿ.\n- ನಿಮ್ಮ ರೇಡಿಯೊ ಆನ್ ಮಾಡಿಟ್ಟುಕೊಳ್ಳಿ.",
-        "volunteer_reasoning": "ಸುರಕ್ಷತೆ ಕಾಪಾಡಲು ಮುಖ್ಯ ದ್ವಾರಗಳಲ್ಲಿ ದಟ್ಟಣೆಯನ್ನು ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಲಾಗುತ್ತಿದೆ.",
-        "volunteer_alt": "ಸೂಚಿಸಿದರೆ ವೈದ್ಯಕೀಯ ಕೇಂದ್ರದ ತಂಡಕ್ಕೆ ವರದಿ ಮಾಡಿ.",
-        "volunteer_access": "ಎಲ್ಲಾ ಗಾಲಿಕುರ್ಚಿ ನೆರವು ಕೇಳುವವರನ್ನು ಕಾನ್ಕೋರ್ಸ್ ಬಿ ಲಿಫ್ಟ್‌ಗಳಿಗೆ ಕಳುಹಿಸಿ.",
-        "volunteer_safety": "ಫ್ಲೋರೊಸೆಂಟ್ ಜಾಕೆಟ್ ಧರಿಸಿ. ತುರ್ತು ನಿರ್ಗಮನ ಮಾರ್ಗಗಳನ್ನು ಮುಕ್ತವಾಗಿಡಿ.",
-        
-        "default_summary": "ಸ್ಟೇಡಿಯಂವರ್ಸ್ ಎಐ ಸಹಾಯಕ ನಿಮಗೆ ಸಹಾಯ ಮಾಡಲು ಸಿದ್ಧವಿದೆ.",
-        "default_action": "- ಮಾರ್ಗಗಳು, ಟಿಕೆಟ್ ಸ್ಕ್ಯಾನ್, ಆಹಾರ ಅಥವಾ ಭದ್ರತೆಯ ಬಗ್ಗೆ ಕೇಳಿ.\n- ನಿಮ್ಮ ಪಾತ್ರ ಮತ್ತು ಭಾಷೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಡ್ರಾಪ್‌ಡೌನ್ ಬಳಸಿ.",
-        "default_reasoning": "ಸ್ಟೇಡಿಯಂವರ್ಸ್ ಎಐ ಫಿಫಾ ವಿಶ್ವಕಪ್ 2026 ಗಾಗಿ ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ಸ್ಮಾರ್ಟ್ ಸಹಾಯಕವಾಗಿದೆ.",
-        "default_alt": "ಕಾನ್ಕೋರ್ಸ್ ಎ ನಲ್ಲಿರುವ ಮಾಹಿತಿ ಕೇಂದ್ರಕ್ಕೆ ಭೇಟಿ ನೀಡಿ.",
-        "default_access": "ನಿಮಗೆ ಗಾಲಿಕುರ್ಚಿ ಅಥವಾ ಲಿಫ್ಟ್ ನೆರವು ಬೇಕಿದ್ದರೆ ದಯವಿಟ್ಟು ತಿಳಿಸಿ.",
-        "default_safety": "ಯಾವುದೇ ಅನುಮಾನಾಸ್ಪದ ಘಟನೆ ಕಂಡುಬಂದಲ್ಲಿ ತಕ್ಷಣ ಭದ್ರತಾ ಸಿಬ್ಬಂದಿಗೆ ತಿಳಿಸಿ."
-    },
-    "spanish": {
-        "emergency_summary": "Se ha activado una alerta de emergencia crítica cerca de la zona especificada.",
-        "emergency_action": "- Siga las rutas de evacuación de inmediato.\n- Mantenga abiertos los canales de comunicación para transmisiones de emergencia.\n- No bloquee pasillos ni puertas de entrada.",
-        "emergency_reasoning": "La seguridad es la prioridad absoluta. La respuesta de emergencia se dirige a través de la Puerta 5 al Centro Médico. El Vestíbulo B debe permanecer libre.",
-        "emergency_alt": "Si las salidas principales están bloqueadas, use la Salida de Emergencia 1 o evacue por el Vestíbulo A.",
-        "emergency_access": "Priorice las rutas accesibles mediante ascensores y rampas de baja pendiente. Ayude primero a los usuarios en silla de ruedas.",
-        "emergency_safety": "Evacue con calma y siga las instrucciones de los oficiales de seguridad.",
-        
-        "incident_summary": "El informe del incidente se registró con éxito y se envió al Centro de Control.",
-        "incident_action": "- Permanezca en un área segura cercana para ayudar al personal.\n- Mantenga contacto visual con el problema si es seguro.",
-        "incident_reasoning": "Todos los informes de seguridad generan registros de auditoría para garantizar una respuesta rápida.",
-        "incident_alt": "Informe directamente en el Centro de Información en el Vestíbulo A.",
-        "incident_access": "Se enviará asistencia de rampa y soporte de movilidad si se reportan dificultades.",
-        "incident_safety": "No toque paquetes desatendidos. Reporte artículos sospechosos de inmediato.",
-        
-        "navigation_summary": "Ruta calculada. La Puerta 3 está congestionada; se recomienda usar la Puerta 5.",
-        "navigation_action": "- Ingrese por la Puerta 5 (tiempo de espera actual inferior a 8 minutos).\n- Evite la Puerta 3, que presenta 24 minutos de espera.",
-        "navigation_reasoning": "La ocupación de la Puerta 3 es del 91%. Ir a la Puerta 5 (57% de ocupación) ahorra aproximadamente 16 minutos.",
-        "navigation_alt": "Use la Puerta 1 que tiene 68% de ocupación y 11 minutos de espera.",
-        "navigation_access": "Los ascensores prioritarios se encuentran en el Vestíbulo B para usuarios con sillas de ruedas o cochecitos.",
-        "navigation_safety": "Manténgase dentro de las rutas peatonales designadas y no obstruya los carriles de seguridad.",
-        
-        "food_summary": "Se recomienda Food Court Norte para el servicio de comida más rápido.",
-        "food_action": "- Diríjase a Food Court Norte (tiempo estimado de espera: 7 minutos).\n- Explore las opciones de menú saludable y vegetariano.",
-        "food_reasoning": "El tiempo de espera en Food Court Sur ha llegado a 18 minutos debido a la gran afluencia.",
-        "food_alt": "La zona de comida familiar en la Sección A12 tiene un tiempo de espera de 5 minutos.",
-        "food_access": "Un mostrador de servicio adaptado está disponible en la Sección A12 para sillas de ruedas.",
-        "food_safety": "Deseche los residuos en los contenedores de reciclaje correctos. Utilice las estaciones de agua gratuitas.",
-        
-        "volunteer_summary": "SOP y lista de verificación recuperados para el soporte de multitudes.",
-        "volunteer_action": "- Regístrese con su Líder de Zona de inmediato.\n- Ayude a redirigir los flujos de llegada de la Puerta 3 a la Puerta 5.\n- Mantenga abierto su canal de radio.",
-        "volunteer_reasoning": "Monitoreamos el flujo de personas en los accesos clave para garantizar la seguridad general.",
-        "volunteer_alt": "Reporte al equipo de reserva del Centro Médico si es reasignado.",
-        "volunteer_access": "Dirija todas las consultas de accesibilidad a los ascensores prioritarios del Vestíbulo B.",
-        "volunteer_safety": "Use chaleco de alta visibilidad. Deje libres las salidas de emergencia de inmediato.",
-        
-        "default_summary": "El asistente StadiumVerse AI está listo para ayudarle.",
-        "default_action": "- Solicite rutas, escaneo de boletos, comida o SOP de seguridad.\n- Utilice los selectores para configurar su rol e idioma.",
-        "default_reasoning": "StadiumVerse AI es un asistente inteligente para las operaciones de la Copa Mundial de la FIFA 2026.",
-        "default_alt": "Visite el Centro de Información en el Vestíbulo A.",
-        "default_access": "Especifique si necesita una ruta accesible para silla de ruedas o cochecito.",
-        "default_safety": "Informe de inmediato cualquier actividad sospechosa u objeto abandonado."
-    },
-    "french": {
-        "emergency_summary": "Une alerte d'urgence critique a été déclenchée à proximité de la zone spécifiée.",
-        "emergency_action": "- Suivez immédiatement les itinéraires d'évacuation.\n- Restez à l'écoute des messages d'urgence radio.\n- Ne bloquez pas les couloirs ou les portes.",
-        "emergency_reasoning": "La sécurité est notre priorité absolue. Les secours d'urgence passent par la Porte 5 vers le Centre Médical. Le Hall B doit rester dégagé.",
-        "emergency_alt": "Si les issues principales sont bloquées, utilisez la Sortie d'Urgence 1 ou sortez via le Hall A.",
-        "emergency_access": "Priorisez les voies accessibles en utilisant les ascenseurs et les rampes d'accès. Aidez d'abord les personnes en fauteuil roulant.",
-        "emergency_safety": "Évacuez calmement. Suivez les instructions des stadiers et des agents de sécurité.",
-        
-        "incident_summary": "Rapport d'incident enregistré et transmis avec succès au PC de Sécurité.",
-        "incident_action": "- Restez dans une zone sécurisée à proximité pour assister nos agents.\n- Gardez un œil sur l'incident si cela est sans danger.",
-        "incident_reasoning": "Tous les rapports de sécurité génèrent des journaux d'audit pour garantir une intervention rapide des équipes.",
-        "incident_alt": "Signalez directement l'incident au Bureau des Bénévoles dans le Hall A.",
-        "incident_access": "Une assistance rampe et mobilité sera déployée si nécessaire.",
-        "incident_safety": "Ne touchez pas aux colis suspects. Signalez-les immédiatement.",
-        
-        "navigation_summary": "Itinéraire calculé. La Porte 3 est encombrée; la Porte 5 est fortement recommandée.",
-        "navigation_action": "- Entrez par la Porte 5 (temps d'attente estimé à moins de 8 minutes).\n- Évitez la Porte 3 qui présente 24 minutes d'attente.",
-        "navigation_reasoning": "L'occupation de la Porte 3 atteint 91%. Utiliser la Porte 5 (57% d'occupation) fait gagner environ 16 minutes.",
-        "navigation_alt": "Utilisez la Porte 1 (68% d'occupation, 11 minutes d'attente).",
-        "navigation_access": "Des ascenseurs prioritaires sont situés dans le Hall B pour les personnes en fauteuil roulant ou avec poussettes.",
-        "navigation_safety": "Restez dans les couloirs piétons balisés et évitez de bloquer les zones de contrôle.",
-        
-        "food_summary": "Le Food Court Nord est recommandé pour un service rapide.",
-        "food_action": "- Dirigez-vous vers le Food Court Nord (temps d'attente estimé à 7 minutes).\n- Découvrez les options saines et végétariennes.",
-        "food_reasoning": "Le temps d'attente au Food Court Sud a atteint 18 minutes en raison de l'affluence de la mi-temps.",
-        "food_alt": "La zone de restauration familiale de la Section A12 a 5 minutes d'attente.",
-        "food_access": "Un comptoir surbaissé est disponible à la Section A12 pour les fauteuils roulants.",
-        "food_safety": "Triez vos déchets dans les poubelles de recyclage de couleur. Utilisez les fontaines à eau gratuites.",
-        
-        "volunteer_summary": "Fiche de procédure d'aide aux foules récupérée pour les bénévoles.",
-        "volunteer_action": "- Signalez-vous immédiatement à votre Chef de Zone.\n- Aidez à rediriger les flux de spectateurs de la Porte 3 vers la Porte 5.\n- Gardez votre canal radio ouvert.",
-        "volunteer_reasoning": "La gestion des flux aux entrées principales est critique pour la sécurité.",
-        "volunteer_alt": "Rejoignez l'équipe de réserve du Centre Médical si nécessaire.",
-        "volunteer_access": "Orientez les demandes d'accessibilité vers les ascenseurs prioritaires du Hall B.",
-        "volunteer_safety": "Portez votre gilet haute visibilité. Laissez les issues de secours libres.",
-        
-        "default_summary": "L'assistant intelligent StadiumVerse AI est à votre service.",
-        "default_action": "- Demandez des itinéraires, des informations de billetterie, de restauration ou de sécurité.\n- Configurez votre rôle et votre langue dans les options.",
-        "default_reasoning": "StadiumVerse AI est un compagnon conçu pour optimiser la Coupe du Monde de la FIFA 2026.",
-        "default_alt": "Rendez-vous au Bureau d'Information Physique dans le Hall A.",
-        "default_access": "Précisez si vous avez besoin d'une rampe d'accès ou d'ascenseurs.",
-        "default_safety": "Signalez immédiatement tout comportement ou colis suspect à la sécurité."
-    }
-}
-
-
-def shortest_route(request: NavigationRequest) -> RouteResponse:
+"""
+Finds the shortest path between the requested start location and destination
+using Breadth-First Search (BFS). Returns an accessible route when requested.
+"""
+def shortest_route(request: NavigationRequest) -> RouteResponse:    
     queue: list[tuple[str, list[str]]] = [(request.start, [request.start])]
     seen = {request.start}
     while queue:
@@ -295,6 +40,10 @@ def shortest_route(request: NavigationRequest) -> RouteResponse:
                 queue.append((next_node, [*path, next_node]))
     return _route_response([request.start, "Information Desk", request.destination], request.accessibility)
 
+"""
+Builds a structured route response including directions, estimated travel
+time, and accessibility guidance.
+"""
 
 def _route_response(path: list[str], accessibility: str) -> RouteResponse:
     notes = ["Use elevator banks and low-gradient ramps."] if accessibility != "standard" else ["Standard route is available."]
@@ -305,7 +54,10 @@ def _route_response(path: list[str], accessibility: str) -> RouteResponse:
         accessibility_notes=notes,
     )
 
-
+"""
+Returns simulated crowd intelligence including gate occupancy, queue lengths,
+density predictions, and operational recommendations.
+"""
 def crowd_intelligence() -> dict:
     gates = [
         {"gate": "Gate 1", "occupancy": 68, "queue": 11},
@@ -324,7 +76,11 @@ def crowd_intelligence() -> dict:
         ],
     }
 
-
+"""
+Generates a real-time operational dashboard snapshot containing KPIs,
+parking utilization, volunteer status, food court wait times,
+security incidents, and crowd analytics.
+"""
 def operations_snapshot() -> dict:
     return {
         "kpis": {"attendance": 64200, "entry_rate_per_min": 1180, "incidents": 3, "medical_alerts": 1},
@@ -340,7 +96,10 @@ def operations_snapshot() -> dict:
         ],
         "crowd": crowd_intelligence(),
     }
-
+"""
+Generates emergency response recommendations, announcements,
+volunteer actions, and escalation guidance based on the incident type.
+"""
 
 def emergency_response(kind: str) -> dict:
     routes = {
@@ -356,7 +115,12 @@ def emergency_response(kind: str) -> dict:
         "volunteer_checklist": ["Confirm exact location", "Keep radio channel open", "Guide guests away from response path"],
         "manager_alert": "Escalated to command center with live crowd overlay.",
     }
-
+"""
+Processes user queries by detecting persona, language, and intent,
+then generates structured multilingual AI responses for navigation,
+emergency assistance, food recommendations, volunteer support,
+incident reporting, and stadium operations.
+"""
 
 def answer_agent(request: AgentRequest) -> AgentResponse:
     message = request.message.lower()

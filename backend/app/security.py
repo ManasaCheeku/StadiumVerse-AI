@@ -4,14 +4,15 @@ import hmac
 import json
 import logging
 import time
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any, TypedDict
 
+import bcrypt
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
-import bcrypt
+from starlette.responses import JSONResponse, Response
 
 from .config import get_settings
 from .database import get_db
@@ -30,6 +31,14 @@ class TokenClaims(TypedDict):
     nbf: int
     exp: int
     type: str
+
+
+# --------------------------------------------------------------------------
+# Constants
+# --------------------------------------------------------------------------
+
+ACCESS_TOKEN_TYPE = "access"
+RATE_LIMIT_WINDOW_SECONDS = 60
 
 
 def hash_password(password: str) -> str:
@@ -71,6 +80,14 @@ def _dumps(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
 
 
+def _unauthorized(detail: str) -> HTTPException:
+    """
+    Build a standard 401 Unauthorized HTTPException with the given detail.
+    Centralizes the status code so every auth-failure path stays consistent.
+    """
+    return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail)
+
+
 def create_access_token(subject: str, role: str | Role) -> str:
     """
     Issue a signed HS256 access token for the given subject and role.
@@ -102,7 +119,7 @@ def create_access_token(subject: str, role: str | Role) -> str:
                 )
             ).timestamp()
         ),
-        "type": "access",
+        "type": ACCESS_TOKEN_TYPE,
     }
 
     signing_input = (
@@ -117,6 +134,7 @@ def create_access_token(subject: str, role: str | Role) -> str:
     ).digest()
 
     return f"{signing_input}.{_b64(signature)}"
+
 
 def decode_token(token: str) -> TokenClaims:
     """
@@ -133,38 +151,56 @@ def decode_token(token: str) -> TokenClaims:
         payload = json.loads(_unb64(header_payload.split(".")[1]))
     except Exception as exc:
         logger.debug("Token decode failed: %s", exc)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token") from exc
+        raise _unauthorized("Invalid token") from exc
 
     # Validate claim shape before trusting any field. A well-signed token
     # with a missing/malformed claim should still fail as 401, not 500.
     if not isinstance(payload.get("sub"), str) or not isinstance(payload.get("role"), str):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    if payload.get("type") != "access":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise _unauthorized("Invalid token")
+    if payload.get("type") != ACCESS_TOKEN_TYPE:
+        raise _unauthorized("Invalid token")
 
     now = int(time.time())
     if payload.get("iss") != settings.jwt_issuer:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise _unauthorized("Invalid token")
     if payload.get("exp", 0) < now:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Expired token")
+        raise _unauthorized("Expired token")
     if payload.get("nbf", 0) > now:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token not yet valid")
+        raise _unauthorized("Token not yet valid")
 
-    return payload  # type: ignore[return-value]
+    # All required claims have been validated above, so it's safe to build
+    # a properly typed TokenClaims value here instead of casting payload.
+    claims: TokenClaims = {
+        "sub": payload["sub"],
+        "role": payload["role"],
+        "iss": payload["iss"],
+        "iat": int(payload.get("iat", 0)),
+        "nbf": int(payload.get("nbf", 0)),
+        "exp": int(payload.get("exp", 0)),
+        "type": payload["type"],
+    }
+    return claims
 
 
 def current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
-    """
-    Resolve the currently authenticated, active user from a bearer token.
-    """
     payload = decode_token(token)
-    user = db.query(User).filter(User.email == payload["sub"], User.is_active.is_(True)).one_or_none()
+
+    logger.debug("JWT Payload: %s", payload)
+
+    user = db.query(User).filter(
+        User.email == payload["sub"],
+        User.is_active.is_(True)
+    ).one_or_none()
+
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise _unauthorized("User not found")
+
+    logger.debug("Database User: %s role=%s (%s)", user.email, user.role, type(user.role))
+
     return user
 
 
-def require_roles(*roles: Role):
+def require_roles(*roles: Role) -> Callable[[User], User]:
     """
     Build a dependency that restricts access to users holding one of the
     given roles.
@@ -172,6 +208,12 @@ def require_roles(*roles: Role):
     allowed = {role.value for role in roles}
 
     def guard(user: User = Depends(current_user)) -> User:
+        # --- temporary debug logging: remove once RBAC bug is confirmed fixed ---
+        logger.debug("Allowed roles: %s", allowed)
+        logger.debug("Current user role: %s (type=%s)", user.role, type(user.role))
+        logger.debug("Authorized: %s", user.role in allowed)
+        # --------------------------------------------------------------------------
+
         if user.role not in allowed:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
         return user
@@ -190,16 +232,25 @@ class RateLimiter:
     def __init__(self) -> None:
         self._hits: dict[str, list[float]] = {}
 
-    async def __call__(self, request: Request, call_next):
+    async def __call__(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         settings = get_settings()
         key = request.client.host if request.client else "unknown"
         now = time.time()
-        self._hits[key] = [hit for hit in self._hits.get(key, []) if now - hit < 60]
+        self._hits[key] = [
+            hit for hit in self._hits.get(key, []) if now - hit < RATE_LIMIT_WINDOW_SECONDS
+        ]
         if len(self._hits[key]) >= settings.rate_limit_per_minute:
             # Must return a Response here, not raise HTTPException: this
             # middleware sits outside FastAPI's ExceptionMiddleware, so a
             # raised HTTPException would propagate as an unhandled 500
             # instead of producing the intended 429 JSON response.
-            return JSONResponse(status_code=429, content={"detail": "Rate limit exceeded"})
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Rate limit exceeded"},
+            )
         self._hits[key].append(now)
         return await call_next(request)

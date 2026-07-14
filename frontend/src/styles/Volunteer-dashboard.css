@@ -1,0 +1,584 @@
+/* ============================================================
+   Volunteer Coordination & Sector Operations Center — styling
+   Stadium-at-night command-console theme, consistent with the
+   Fan and Security dashboards. Scoped under .vco-root and every
+   class is prefixed vco- to avoid collisions with existing CSS.
+   ============================================================ */
+
+@import url('./stadiumverse-tokens.css');
+
+.vco-root {
+  /* Local aliases onto the shared tokens — keeps this file's class
+     names stable while guaranteeing identical colors app-wide. */
+  --vco-void: var(--sv-void);
+  --vco-void-2: var(--sv-void-2);
+  --vco-border: var(--sv-border);
+  --vco-border-strong: var(--sv-border-strong);
+  --vco-cyan: var(--sv-brand);
+  --vco-cyan-dim: var(--sv-brand-dim);
+  --vco-amber: var(--sv-warning);
+  --vco-amber-dim: var(--sv-warning-dim);
+  --vco-red: var(--sv-critical);
+  --vco-red-dim: var(--sv-critical-dim);
+  --vco-green: var(--sv-success);
+  --vco-green-dim: var(--sv-success-dim);
+  --vco-caution: var(--sv-caution);
+  --vco-caution-dim: var(--sv-caution-dim);
+  --vco-neutral: var(--sv-neutral);
+  --vco-neutral-dim: var(--sv-neutral-dim);
+  --vco-text: var(--sv-text);
+  --vco-muted: var(--sv-muted);
+  --vco-faint: var(--sv-faint);
+
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 1200px 600px at 15% -10%, rgba(34, 211, 238, 0.07), transparent 60%),
+    radial-gradient(ellipse 1000px 700px at 100% 0%, rgba(242, 169, 12, 0.05), transparent 55%),
+    linear-gradient(180deg, var(--vco-void) 0%, var(--vco-void-2) 100%);
+  color: var(--vco-text);
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 24px;
+}
+
+.vco-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+/* ---------- Header ---------- */
+
+.vco-header {
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--vco-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.vco-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.2em;
+  font-size: 11px;
+  color: var(--vco-cyan);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.vco-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--vco-green);
+  animation: vco-pulse-ring 2s infinite;
+}
+
+@keyframes vco-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+.vco-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  margin: 0;
+}
+
+.vco-subtitle {
+  color: var(--vco-muted);
+  font-size: 14px;
+  margin-top: 6px;
+  max-width: 560px;
+}
+
+.vco-header-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vco-meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--vco-border);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 12.5px;
+  color: var(--vco-muted);
+}
+
+.vco-meta-chip strong {
+  color: var(--vco-text);
+  font-weight: 600;
+}
+
+.vco-status-on-duty { color: var(--vco-green) !important; }
+
+.vco-header-radar {
+  position: absolute;
+  right: 4px;
+  top: -4px;
+  color: var(--vco-cyan);
+  opacity: 0.5;
+  animation: vco-spin 5s linear infinite;
+}
+
+@keyframes vco-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Grid system (12-column responsive) ---------- */
+
+.vco-grid {
+  max-width: 1280px;
+  margin: 0 auto 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.vco-grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.vco-grid-main {
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.vco-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .vco-grid-main { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .vco-grid-4 { grid-template-columns: 1fr; }
+}
+
+/* ---------- Cards ---------- */
+
+.vco-card {
+  position: relative;
+  background: linear-gradient(160deg, rgba(22, 35, 60, 0.75), rgba(15, 22, 38, 0.6));
+  border: 1px solid var(--vco-border);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.vco-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--vco-border-strong);
+  box-shadow: 0 10px 30px -12px rgba(34, 211, 238, 0.18);
+}
+
+/* ---------- KPI stat cards ---------- */
+
+.vco-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.vco-icon-cyan { background: var(--vco-cyan-dim); color: var(--vco-cyan); }
+.vco-icon-amber { background: var(--vco-amber-dim); color: var(--vco-amber); }
+.vco-icon-red { background: var(--vco-red-dim); color: var(--vco-red); }
+.vco-icon-green { background: var(--vco-green-dim); color: var(--vco-green); }
+
+.vco-stat-label {
+  color: var(--vco-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.vco-stat-value {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.vco-stat-sub {
+  color: var(--vco-faint);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* ---------- Shared panel content ---------- */
+
+.vco-panel-hint {
+  color: var(--vco-muted);
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+/* ---------- Duty checklist ---------- */
+
+.vco-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vco-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--vco-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: opacity 0.2s ease;
+}
+
+.vco-task-done {
+  opacity: 0.55;
+}
+
+.vco-task-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  line-height: 0;
+  color: var(--vco-muted);
+}
+
+.vco-check-icon { color: var(--vco-green); }
+.vco-circle-icon { color: var(--vco-faint); }
+
+.vco-task-body { flex: 1; min-width: 0; }
+
+.vco-task-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.vco-task-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.vco-task-done .vco-task-title {
+  text-decoration: line-through;
+  color: var(--vco-muted);
+}
+
+.vco-task-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--vco-muted);
+  font-size: 12.5px;
+}
+
+.vco-task-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- Badges ---------- */
+
+.vco-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.vco-badge-critical { color: var(--vco-red); background: var(--vco-red-dim); border-color: rgba(240, 69, 69, 0.35); }
+.vco-badge-warning { color: var(--vco-amber); background: var(--vco-amber-dim); border-color: rgba(242, 169, 12, 0.35); }
+.vco-badge-info { color: var(--vco-neutral); background: var(--vco-neutral-dim); border-color: rgba(147, 161, 189, 0.3); }
+
+/* ---------- Live Sector Check-In fields ---------- */
+
+.vco-field-row {
+  margin-bottom: 14px;
+}
+
+.vco-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.vco-label {
+  display: block;
+  font-size: 12px;
+  color: var(--vco-muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.vco-input, .vco-textarea {
+  width: 100%;
+  background: rgba(8, 13, 24, 0.6);
+  border: 1px solid var(--vco-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--vco-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.vco-textarea { resize: vertical; }
+
+.vco-input:focus, .vco-textarea:focus {
+  outline: none;
+  border-color: var(--vco-cyan);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12);
+}
+
+.vco-input::placeholder, .vco-textarea::placeholder {
+  color: var(--vco-faint);
+  font-family: 'Inter', sans-serif;
+}
+
+.vco-segmented {
+  display: flex;
+  gap: 8px;
+}
+
+.vco-segment {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--vco-border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--vco-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vco-segment:hover { border-color: var(--vco-border-strong); }
+
+.vco-segment-active.vco-segment-normal { background: var(--vco-green-dim); color: var(--vco-green); border-color: rgba(52, 211, 153, 0.35); }
+.vco-segment-active.vco-segment-busy { background: var(--vco-amber-dim); color: var(--vco-amber); border-color: rgba(242, 169, 12, 0.35); }
+.vco-segment-active.vco-segment-severe { background: var(--vco-red-dim); color: var(--vco-red); border-color: rgba(240, 69, 69, 0.35); }
+
+.vco-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+/* ---------- Buttons ---------- */
+
+.vco-button {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 10px;
+  padding: 9px 16px;
+  border: 1px solid var(--vco-border-strong);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--vco-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vco-button:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.vco-button-primary {
+  background: linear-gradient(135deg, #1ea9c4, #178fb0);
+  border-color: transparent;
+  color: #04161c;
+}
+
+.vco-button-primary:hover {
+  background: linear-gradient(135deg, #29bcd8, #1a9fc0);
+  box-shadow: 0 8px 24px -8px rgba(34, 211, 238, 0.5);
+}
+
+/* ---------- AI Volunteer Assistant SOP cards ---------- */
+
+.vco-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.vco-sop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--vco-border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--vco-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.vco-sop-card:hover {
+  border-color: var(--vco-border-strong);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vco-sop-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-sizing: content-box;
+}
+
+/* ---------- Generated Guidance ---------- */
+
+.vco-guidance-announcement {
+  font-size: 13.5px;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--vco-border);
+}
+
+.vco-guidance-route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--vco-cyan);
+  margin-bottom: 10px;
+}
+
+.vco-guidance-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+}
+
+/* ---------- Accessibility Monitor ---------- */
+
+.vco-monitor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vco-monitor-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.vco-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.vco-dot-green { background: var(--vco-green); box-shadow: 0 0 8px var(--vco-green); }
+.vco-dot-amber { background: var(--vco-amber); box-shadow: 0 0 8px var(--vco-amber); }
+.vco-dot-red { background: var(--vco-red); box-shadow: 0 0 8px var(--vco-red); }
+
+.vco-monitor-label { font-size: 13.5px; font-weight: 600; }
+.vco-monitor-note { font-size: 12px; color: var(--vco-muted); }
+
+/* ---------- Timeline ---------- */
+
+.vco-timeline {
+  position: relative;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vco-timeline-line {
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--vco-border-strong), transparent);
+}
+
+.vco-timeline-item {
+  display: flex;
+  gap: 12px;
+  position: relative;
+}
+
+.vco-timeline-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  border: 2px solid var(--vco-void);
+  position: absolute;
+  left: -22px;
+  top: 3px;
+}
+
+.vco-timeline-label { font-size: 13.5px; font-weight: 600; }
+.vco-timeline-detail { font-size: 12.5px; color: var(--vco-muted); }
+.vco-timeline-time { font-size: 11.5px; color: var(--vco-faint); margin-top: 2px; }
+
+/* ---------- Motion ---------- */
+
+.vco-fade-in { animation: vco-fade-in 0.35s ease both; }
+
+@keyframes vco-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vco-live-dot, .vco-header-radar, .vco-fade-in {
+    animation: none !important;
+  }
+}

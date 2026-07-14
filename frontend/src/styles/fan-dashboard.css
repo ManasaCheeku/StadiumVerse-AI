@@ -1,0 +1,353 @@
+/* ==========================================================================
+   Fan Dashboard — stadium-at-night enterprise theme
+   Scoped under .fan-dashboard so it can't leak into the rest of the app.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap");
+
+
+/* Fan styles below */
+.fan-dashboard {
+    --fan-bg: #0a0e13;
+    --fan-surface: #131a22;
+    --fan-surface-raised: #1a222b;
+    --fan-border: #232d38;
+    --fan-border-hover: #34424f;
+    --fan-text: #eaf0f5;
+    --fan-text-muted: #7e8b96;
+
+    --fan-gold: #f2a93b;
+    --fan-gold-glow: rgba(242, 169, 59, 0.28);
+    --fan-turf: #2fae66;
+    --fan-turf-glow: rgba(47, 174, 102, 0.28);
+    --fan-blue: #5fa8e0;
+    --fan-blue-glow: rgba(95, 168, 224, 0.28);
+
+    display: grid;
+    gap: 20px;
+    padding: 28px clamp(16px, 3vw, 40px) 60px;
+    background: var(--fan-bg);
+    color: var(--fan-text);
+    font-family: "Inter", -apple-system, sans-serif;
+    min-height: 100%;
+}
+
+.fan-dashboard * {
+    box-sizing: border-box;
+}
+
+/* -------------------------------------------------------------------- */
+/* Scoreboard strip + quick actions rail (unmodified child components,
+   framed only) */
+/* -------------------------------------------------------------------- */
+
+.fan-context-strip {
+    border: 1px solid var(--fan-border);
+    background: linear-gradient(180deg, var(--fan-surface-raised), var(--fan-surface));
+    border-radius: 14px;
+    padding: 4px;
+}
+
+.fan-quickactions-rail {
+    border: 1px solid var(--fan-border);
+    background: var(--fan-surface);
+    border-radius: 14px;
+    padding: 4px 8px;
+}
+
+/* -------------------------------------------------------------------- */
+/* Hero */
+/* -------------------------------------------------------------------- */
+
+.fan-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--fan-border);
+    border-radius: 18px;
+    padding: 40px clamp(20px, 4vw, 48px);
+    background: radial-gradient(120% 140% at 0% 0%, #182029 0%, #0d1218 70%);
+}
+
+.fan-hero__glow {
+    position: absolute;
+    top: -60%;
+    left: 50%;
+    width: 900px;
+    height: 900px;
+    transform: translateX(-50%);
+    background: conic-gradient(
+        from 90deg,
+        transparent 0deg,
+        var(--fan-gold-glow) 30deg,
+        transparent 90deg,
+        var(--fan-turf-glow) 200deg,
+        transparent 260deg,
+        var(--fan-blue-glow) 320deg,
+        transparent 360deg
+    );
+    filter: blur(60px);
+    opacity: 0.5;
+    animation: fan-floodlight-sweep 22s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes fan-floodlight-sweep {
+    to {
+        transform: translateX(-50%) rotate(360deg);
+    }
+}
+
+.fan-eyebrow {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fan-gold);
+}
+
+.fan-hero__title {
+    position: relative;
+    max-width: 720px;
+    margin: 0 0 28px;
+    font-family: "Oswald", sans-serif;
+    font-weight: 600;
+    font-size: clamp(24px, 3.2vw, 36px);
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    color: #ffffff;
+}
+
+.fan-hero__actions {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.fan-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--fan-border-hover);
+    background: var(--fan-surface-raised);
+    color: var(--fan-text);
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.fan-action:active {
+    transform: translateY(1px) scale(0.99);
+}
+
+.fan-action__icon {
+    display: inline-flex;
+}
+
+.fan-action--gold:hover {
+    border-color: var(--fan-gold);
+    background: #1d1911;
+    box-shadow: 0 8px 24px -8px var(--fan-gold-glow);
+    transform: translateY(-2px);
+    color: var(--fan-gold);
+}
+
+.fan-action--turf:hover {
+    border-color: var(--fan-turf);
+    background: #101d16;
+    box-shadow: 0 8px 24px -8px var(--fan-turf-glow);
+    transform: translateY(-2px);
+    color: var(--fan-turf);
+}
+
+.fan-action--blue:hover {
+    border-color: var(--fan-blue);
+    background: #101a22;
+    box-shadow: 0 8px 24px -8px var(--fan-blue-glow);
+    transform: translateY(-2px);
+    color: var(--fan-blue);
+}
+
+/* -------------------------------------------------------------------- */
+/* Card grid */
+/* -------------------------------------------------------------------- */
+
+.fan-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+}
+
+.fan-card {
+    grid-column: span 12;
+    border: 1px solid var(--fan-border);
+    background: var(--fan-surface);
+    border-radius: 16px;
+    padding: 6px 6px 18px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.fan-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--fan-border-hover);
+}
+
+.fan-card--gold:hover {
+    border-color: var(--fan-gold);
+    box-shadow: 0 14px 32px -18px var(--fan-gold-glow);
+}
+
+.fan-card--turf:hover {
+    border-color: var(--fan-turf);
+    box-shadow: 0 14px 32px -18px var(--fan-turf-glow);
+}
+
+.fan-card--blue:hover {
+    border-color: var(--fan-blue);
+    box-shadow: 0 14px 32px -18px var(--fan-blue-glow);
+}
+
+@media (min-width: 900px) {
+    .fan-card--span-wide {
+        grid-column: span 7;
+    }
+    .fan-card--span-narrow {
+        grid-column: span 5;
+    }
+}
+
+/* -------------------------------------------------------------------- */
+/* Ticket / route frames (wrap unmodified child components) */
+/* -------------------------------------------------------------------- */
+
+.fan-ticket-frame,
+.fan-route-frame {
+    border: 1px dashed var(--fan-border-hover);
+    border-radius: 12px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+/* -------------------------------------------------------------------- */
+/* Empty states */
+/* -------------------------------------------------------------------- */
+
+.fan-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 22px 16px;
+    border: 1px dashed var(--fan-border);
+    border-radius: 12px;
+    color: var(--fan-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.fan-empty-state__icon {
+    color: var(--fan-text-muted);
+    opacity: 0.8;
+}
+
+.fan-empty-state strong {
+    color: var(--fan-text);
+}
+
+/* -------------------------------------------------------------------- */
+/* Fan agent hint */
+/* -------------------------------------------------------------------- */
+
+.fan-agent-hint {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 18px 16px;
+    color: var(--fan-text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.fan-agent-hint__icon {
+    display: inline;
+    margin-right: 6px;
+    color: var(--fan-blue);
+    vertical-align: -2px;
+}
+
+.fan-agent-hint__pulse {
+    position: absolute;
+    top: 20px;
+    left: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--fan-blue);
+    box-shadow: 0 0 0 0 var(--fan-blue-glow);
+    animation: fan-pulse 2.2s ease-out infinite;
+    opacity: 0;
+}
+
+@keyframes fan-pulse {
+    0% {
+        opacity: 0;
+    }
+}
+
+/* -------------------------------------------------------------------- */
+/* Venue list */
+/* -------------------------------------------------------------------- */
+
+.fan-venue-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fan-venue-list__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--fan-border);
+    border-radius: 10px;
+    font-size: 13.5px;
+    color: var(--fan-text);
+    background: var(--fan-surface-raised);
+    transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.fan-venue-list__item:hover {
+    border-color: var(--fan-gold);
+    transform: translateY(-1px);
+}
+
+/* -------------------------------------------------------------------- */
+/* Reduced motion */
+/* -------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .fan-hero__glow,
+    .fan-agent-hint__pulse {
+        animation: none;
+    }
+    .fan-action,
+    .fan-card,
+    .fan-venue-list__item {
+        transition: none;
+    }
+}
