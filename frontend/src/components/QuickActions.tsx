@@ -1,118 +1,69 @@
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { AlertTriangle, Bus, Car, Languages, MapPin, Users } from "lucide-react";
 
-const actions = [
-  {
-    title: "Find My Gate",
-    subtitle: "AI Navigation",
-    emoji: "🧭",
-    color: "from-sky-500 to-blue-600",
-    route: "/navigation",
-  },
-  {
-    title: "Food & Drinks",
-    subtitle: "Nearby Restaurants",
-    emoji: "🍔",
-    color: "from-orange-500 to-red-500",
-    route: "/navigation",
-  },
-  {
-    title: "Nearest Washroom",
-    subtitle: "Locate Facilities",
-    emoji: "🚻",
-    color: "from-cyan-500 to-blue-500",
-    route: "/navigation",
-  },
-  {
-    title: "Accessible Route",
-    subtitle: "Wheelchair Friendly",
-    emoji: "♿",
-    color: "from-emerald-500 to-green-600",
-    route: "/navigation",
-  },
-  {
-    title: "Emergency",
-    subtitle: "Medical & Security",
-    emoji: "🚨",
-    color: "from-red-500 to-red-700",
-    route: "/emergency",
-  },
-  {
-    title: "AI Copilot",
-    subtitle: "Ask StadiumVerse AI",
-    emoji: "🤖",
-    color: "from-purple-500 to-indigo-600",
-    route: "/copilot",
-  },
+const QUICK_ACTIONS = [
+  { id: "gate", icon: "MapPin", label: "Find My Gate", hint: "Navigate to your gate", prompt: "How do I find my gate? I have a ticket for Gate 5 at Harbor Field.", persona: "fan" },
+  { id: "access", icon: "Users", label: "Accessible Route", hint: "Wheelchair & mobility routes", prompt: "I need a wheelchair-accessible route from the main entrance to Section B20.", persona: "fan" },
+  { id: "washroom", icon: "Droplets", label: "Nearest Washroom", hint: "Find restrooms quickly", prompt: "Where is the nearest restroom from Concourse B?", persona: "fan" },
+  { id: "food", icon: "Utensils", label: "Find Food", hint: "Fastest concessions queue", prompt: "Which food court has the shortest queue right now?", persona: "fan" },
+  { id: "parking", icon: "Car", label: "Parking", hint: "Parking slots & directions", prompt: "Which parking zone has the most available spaces and how do I get there?", persona: "fan" },
+  { id: "transit", icon: "Bus", label: "Transport", hint: "Bus, rail & shuttle status", prompt: "What public transport options are available from the stadium after the match?", persona: "fan" },
+  { id: "lost", icon: "Search", label: "Lost & Found", hint: "Report or find lost items", prompt: "I lost my bag near Section A12. How do I report it and where is the Lost and Found desk?", persona: "fan" },
+  { id: "emergency", icon: "AlertTriangle", label: "Emergency", hint: "Medical & safety support", prompt: "medical emergency near gate 5", persona: "fan" },
+  { id: "translate", icon: "Languages", label: "Translate Announcement", hint: "Multilingual stadium help", prompt: "Please translate the latest stadium announcement into Hindi.", persona: "fan" },
+  { id: "rules", icon: "BookOpen", label: "Stadium Rules", hint: "Allowed & prohibited items", prompt: "What are the stadium rules? What items are prohibited at Harbor Field for the FIFA World Cup?", persona: "fan" },
 ];
 
-export default function QuickActions() {
-  const navigate = useNavigate();
+const QA_ICON_MAP: Record<string, React.ElementType> = {
+  MapPin, Users, Car, Bus, Languages, AlertTriangle,
+  Droplets: ({ size }: { size: number }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg>
+  ),
+  Utensils: ({ size }: { size: number }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></svg>
+  ),
+  Search: ({ size }: { size: number }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+  ),
+  BookOpen: ({ size }: { size: number }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+  ),
+};
 
-  return (
-    <section className="mt-12">
+interface QuickActionsProps {
+  onAskCopilot?: (msg: string, persona: string, lang?: string) => void;
+  isLoggedIn?: boolean;
+}
 
-      <div className="flex items-center justify-between mb-8">
-
-        <div>
-
-          <h2 className="text-4xl font-bold">
-            Quick Actions
-          </h2>
-
-          <p className="text-slate-400 mt-2">
-            One tap access to essential match-day services.
-          </p>
-
-        </div>
-
-      </div>
-
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-        {actions.map((action) => (
-
-          <button
-            key={action.title}
-            onClick={() => navigate(action.route)}
-            className="group overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 transition duration-300 hover:-translate-y-2 hover:border-sky-500 hover:shadow-2xl"
-          >
-
-            <div
-              className={`h-2 bg-gradient-to-r ${action.color}`}
-            />
-
-            <div className="p-8">
-
-              <div className="text-6xl transition-transform duration-300 group-hover:scale-110">
-                {action.emoji}
+function QuickActions({
+  onAskCopilot = () => {},
+  isLoggedIn = true,
+}: QuickActionsProps) {  return (
+    <div className="quick-actions-panel">
+      <p className="eyebrow">Quick Actions</p>
+      <div className="quick-actions-grid">
+        {QUICK_ACTIONS.map((action) => {
+          const Icon = QA_ICON_MAP[action.icon] ?? MapPin;
+          return (
+            <button
+              key={action.id}
+              id={`quick-action-${action.id}`}
+              className="quick-action-card"
+              disabled={!isLoggedIn}
+              onClick={() => onAskCopilot(action.prompt, action.persona)}
+            >
+              <Icon size={22} />
+              <div>
+                <strong>{action.label}</strong>
+                <span style={{ display: "block", marginTop: "2px" }}>{action.hint}</span>
               </div>
-
-              <h3 className="mt-6 text-2xl font-bold">
-                {action.title}
-              </h3>
-
-              <p className="mt-3 text-slate-400">
-                {action.subtitle}
-              </p>
-
-              <div className="mt-8 flex items-center text-sky-400">
-
-                Open
-
-                <span className="ml-2 transition-transform group-hover:translate-x-2">
-                  →
-                </span>
-
-              </div>
-
-            </div>
-
-          </button>
-
-        ))}
-
+            </button>
+          );
+        })}
       </div>
-
-    </section>
+    </div>
   );
 }
+
+export { QUICK_ACTIONS, QA_ICON_MAP };
+export default QuickActions;

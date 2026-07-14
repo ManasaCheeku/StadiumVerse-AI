@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 export type Venue = {
   id: string;
   name: string;
@@ -31,10 +32,23 @@ export type VenueInsights = {
   insights: Insight[];
   recommendations: string[];
 };
-
 const api = axios.create({
-  baseURL: "https://stadium-verse-ai-flame.vercel.app",
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000",
 });
+
+// --- temporary diagnostic: remove once auth bug is confirmed fixed ---
+api.interceptors.request.use((config) => {
+  console.log(
+    "[api request]",
+    config.method?.toUpperCase(),
+    config.url,
+    "Authorization:",
+    config.headers?.Authorization ?? "(none)"
+  );
+  return config;
+});
+// -----------------------------------------------------------------------
 
 export function setAuthToken(token: string | null) {
   if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
@@ -58,6 +72,7 @@ export function fetchVenues() {
 export function fetchInsights(venueId: string) {
   return getJson<VenueInsights>(`/venues/${venueId}/insights`);
 }
+export default api;
 
 export type User = { email: string; full_name: string; role: string };
 export type TokenResponse = { access_token: string; token_type: string; role: string };
@@ -74,8 +89,20 @@ export type OperationsSnapshot = {
   crowd: { density: number; prediction: string; gate_occupancy: Array<{ gate: string; occupancy: number; queue: number }>; recommendations: string[] };
 };
 
-export const login = (email: string, password: string) => postJson<TokenResponse>("/auth/login", { email, password });
-export const me = () => getJson<User>("/me");
+export const login = async (email: string, password: string) => {
+  console.log("========== LOGIN API ==========");
+  console.log("Calling /auth/login");
+  console.log("Email:", email);
+
+  const response = await postJson<TokenResponse>("/auth/login", {
+    email,
+    password,
+  });
+
+  console.log("Login Response:", response);
+
+  return response;
+};export const me = () => getJson<User>("/me");
 export const issueTicket = () => postJson<Ticket>("/tickets", {});
 export const scanTicket = (qr_payload: string) => postJson<ScanResponse>("/security/scan", { qr_payload, stadium_id: "atlas-dome", match_id: "final-2026" });
 export const routeTo = (start: string, destination: string, accessibility = "standard") => postJson<RouteResponse>("/navigation/route", { start, destination, accessibility });

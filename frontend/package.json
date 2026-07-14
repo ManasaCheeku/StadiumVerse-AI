@@ -1,8 +1,23 @@
 {
   "name": "stadiumverse-ai-frontend",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.1.0",
+  "description": "AI-powered Smart Stadium Operations Platform for intelligent crowd management, security, navigation, ticket validation, and tournament operations.",
+  "author": "Manasa M R",
+  "license": "MIT",
   "type": "module",
+  "keywords": [
+    "AI",
+    "Smart Stadium",
+    "React",
+    "Vite",
+    "TypeScript",
+    "FastAPI",
+    "Sports Tech",
+    "Tournament Management",
+    "Crowd Intelligence",
+    "Emergency Response"
+  ],
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc && vite build",
@@ -29,5 +44,9 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17"
+  },
+  "engines": {
+    "node": ">=18.18.0",
+    "npm": ">=9.0.0"
   }
 }

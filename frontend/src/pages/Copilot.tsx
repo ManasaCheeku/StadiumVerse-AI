@@ -1,8 +1,22 @@
+import React from "react";
 import Navbar from "../components/Navbar";
 import AICopilot from "../components/AICopilot";
 import Footer from "../components/Footer";
+import { me, setAuthToken, type User } from "../api";
 
 export default function Copilot() {
+  const [user, setUser] = React.useState<User | null>(null);
+
+  // Mirrors the auth bootstrap in main.tsx's Shell so the copilot persona
+  // stays in sync with whoever is logged in, even on a standalone page.
+  React.useEffect(() => {
+    const token = localStorage.getItem("stadiumverse_token");
+    if (token) {
+      setAuthToken(token);
+      me().then(setUser).catch(() => localStorage.removeItem("stadiumverse_token"));
+    }
+  }, []);
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <Navbar />
@@ -46,7 +60,13 @@ export default function Copilot() {
 
       {/* AI Chat */}
       <section className="mx-auto max-w-7xl px-6 py-10">
-        <AICopilot />
+        <AICopilot
+          isOpen={true}
+          onClose={() => {}}
+          trigger={null}
+          currentUser={user}
+          clearTrigger={() => {}}
+        />
       </section>
 
       <Footer />

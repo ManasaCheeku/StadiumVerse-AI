@@ -1,8 +1,7 @@
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-800 py-8 text-center text-slate-400">
-      <p>© 2026 StadiumVerse AI</p>
-      <p>AI Match Day Copilot for FIFA World Cup 2026</p>
+    <footer className="mt-16 border-t border-slate-800 py-8 text-center text-sm text-slate-500">
+      <p>StadiumVerse AI · FIFA World Cup 2026 · Smart Stadium Operating System</p>
     </footer>
   );
 }
